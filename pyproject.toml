@@ -1,0 +1,137 @@
+[project]
+name = "registration-flow"
+version = "0.1.0"
+description = "Systematic Registration Flow for any Businesses"
+readme = "README.md"
+requires-python = ">=3.14.3"
+dependencies = [
+    "django>=6.0.7",
+    "django-extensions>=4.1",
+    "django-filter>=26.1",
+    "pillow>=12.3.0",
+    "pydantic>=2.13.4",
+    "pydantic-settings>=2.14.2",
+    "qrcode>=8.2",
+    "structlog>=26.1.0",
+    "weasyprint>=69.0",
+]
+
+[dependency-groups]
+dev = [
+    "factory-boy>=3.3.3",
+    "faker>=40.36.0",
+    "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
+    "pytest-xdist>=3.8.0",
+    "ruff>=0.16.1",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py314"
+extend-exclude = [
+    ".eggs",
+    ".git",
+    ".venv",
+    "dist",
+    "migrations",
+]
+
+[tool.ruff.lint]
+select = [
+    "E", "W", "F", "I", "B", "C4", "UP", "DJ",
+]
+
+ignore = [
+    "E501",   # line too long (handled by black)
+
+    # Blank line rules
+    "E301",   # expected 1 blank line, found 0
+    "E302",   # expected 2 blank lines, found 1
+    "E303",   # too many blank lines
+    "E304",   # blank lines found after function decorator
+    "E305",   # expected 2 blank lines after class or function definition
+    "E306",   # expected 1 blank line before a nested definition
+    
+    # Whitespace rules
+    "W291",   # trailing whitespace
+    "W292",   # no newline at end of file
+    "W293",   # blank line contains whitespace
+    "W391",   # blank line at end of file
+    "E201",   # whitespace after '('
+    "E202",   # whitespace before ')'
+    "E203",   # whitespace before ':'
+    "E211",   # whitespace before '('
+    "E221",   # multiple spaces before operator
+    "E222",   # multiple spaces after operator
+    "E225",   # missing whitespace around operator
+    "E231",   # missing whitespace after ','
+    "E251",   # unexpected spaces around keyword / parameter equals
+    "E261",   # at least two spaces before inline comment
+    "E262",   # inline comment should start with '# '
+    "E265",   # block comment should start with '# '
+    "E271",   # multiple spaces after keyword
+    "E272",   # multiple spaces before keyword
+    # Other rules
+    "B008",   # do not perform function calls in argument defaults
+    "DJ001",  # avoid using null=True on string-based fields
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # unused imports
+"*/migrations/*.py" = ["E501", "DJ001"]  # Django migrations
+
+[tool.ruff.lint.isort]
+known-first-party = ["registration-flow"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "config.settings.local"
+pythonpath = ["."]
+python_files = ["test_*.py", "*_test.py", "tests.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--cov=config",
+    "--cov=modules",
+    "--cov=shared",
+    "--cov-report=term-missing",
+    "--cov-report=html",
+    "--cov-report=xml",
+    "--reuse-db",
+]
+testpaths = ["tests"]
+django_find_project = false
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+    "unit: marks tests as unit tests",
+]
+
+[tool.coverage.run]
+source = ["forma"]
+omit = [
+    "*/migrations/*",
+    "*/tests/*",
+    "*/test_*.py",
+    "*/__init__.py",
+    "*/manage.py",
+    "*/wsgi.py",
+    "*/asgi.py",
+]
+
+[tool.coverage.report]
+precision = 2
+show_missing = true
+skip_covered = false
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "class .*\\bProtocol\\):",
+    "@(abc\\.)?abstractmethod",
+]
