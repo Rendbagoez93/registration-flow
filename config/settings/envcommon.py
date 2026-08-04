@@ -1,61 +1,44 @@
 from typing import Any 
 
-from pydantic import Field, field_validator, Json
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class CommonEnvSettings(BaseSettings):
-    SECRET_KEY: str = Field(
-        default="django-insecure-change-this-in-production",
-        description="Django secret key for cryptographic signing",
-    )
-    
-    DEBUG: bool = Field(default=False, description="Enable debug mode")
-    ENVIRONMENT: str = Field(default="local", description="Current environment (local, dev, prod)")
+    SECRET_KEY: str = Field(default="django-insecure-change-this-in-production")
+    DEBUG: bool = Field(default=False)
+    ENVIRONMENT: str = Field(default="local")
+    ALLOWED_HOSTS: list[str] = Field(default=["localhost", "127.0.0.1"])
 
-    ALLOWED_HOSTS: list[str] = Field(
-        default=["localhost", "127.0.0.1"],
-        description="List of allowed host/domain names",
-    )
+    LANGUAGE_CODE: str = Field(default="en-us")
+    TIME_ZONE: str = Field(default="Asia/Jakarta")
 
-    LANGUAGE_CODE: str = Field(default="en-us", description="Language code for the application")
-    TIME_ZONE: str = Field(default="Asia/Jakarta", description="Time zone for the application")
-
-    EMAIL_BACKEND: str = Field(
-        default="django.core.mail.backends.console.EmailBackend", 
-        description="Email backend to use"
-    )
-    EMAIL_HOST: str = Field(default="localhost", description="Email server host")
-    EMAIL_PORT: str = Field(default="587", description="Email server port")
-    EMAIL_USE_TLS: str = Field(default="True", description="Use TLS for email")
-    EMAIL_HOST_USER: str = Field(default="", description="Email server username")
-    EMAIL_HOST_PASSWORD: str = Field(default="", description="Email server password")
+    EMAIL_BACKEND: str = Field(default="django.core.mail.backends.console.EmailBackend")
+    EMAIL_HOST: str = Field(default="localhost")
+    EMAIL_PORT: int = Field(default=587)
+    EMAIL_USE_TLS: bool = Field(default=True)
+    EMAIL_HOST_USER: str = Field(default="")
+    EMAIL_HOST_PASSWORD: str = Field(default="")
 
     model_config = SettingsConfigDict(
+        env_prefix="DJANGO_",
         env_file=".env",
         env_file_encoding="utf-8",
         case_sensitive=False,
         extra="ignore",
     )
 
-    @field_validator("SECRET_KEY", mode="before")
-    @classmethod
-    def empty_secret_key_to_default(cls, v: Any) -> Any:
-        if v == "" or v is None:
-            return "django-insecure-change-this-in-production"
-        return v
-
     @field_validator("ALLOWED_HOSTS", mode="before")
     @classmethod
-    def validate_allowed_hosts(cls, v):
-        if isinstance(v, str):
-            parsed = Json.loads(v)
-        
-            if parsed == []:
-                return ["localhost", "127.0.0.1"]
-            return parsed
-        
-        if isinstance(v, list) and v == []:
-            return ["localhost", "127.0.0.1"]
+    def split_allowed_hosts(cls, v: Any) -> Any:
+        if isinstance(v, str) and not v.startswith("["):
+            return [h.strip() for h in v.split(",") if h.strip()]
+        return v
+
+    @field_validator("SECRET_KEY", mode="after")
+    @classmethod
+    def enforce_secret_key_in_prod(cls, v: str, info) -> str:
+        if info.data.get("ENVIRONMENT") not in ("local", "test") and v.startswith("django-insecure"):
+            raise ValueError("SECRET_KEY must be explicitly set outside local/test.")
         return v
 
     # Helper Properties for Django settings
