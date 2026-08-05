@@ -1,10 +1,9 @@
 
 from pathlib import Path
 
-import structlog
-
 from .databases import DBEngineEnum, build_databases
 from .envcommon import CommonEnvSettings
+from .logging import build_logging_config, configure_structlog
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -140,40 +139,5 @@ EMAIL_HOST_PASSWORD = env.EMAIL_HOST_PASSWORD
 # https://docs.djangoproject.com/en/6.0/topics/logging/
 # https://www.structlog.org/en/stable/standard-library.html
 
-structlog.configure(
-    processors=[
-        structlog.contextvars.merge_contextvars,
-        structlog.stdlib.filter_by_level,
-        structlog.stdlib.add_logger_name,
-        structlog.stdlib.add_log_level,
-        structlog.processors.TimeStamper(fmt="iso"),
-        structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
-    ],
-    logger_factory=structlog.stdlib.LoggerFactory(),
-    cache_logger_on_first_use=True,
-)
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'console': {
-            '()': structlog.stdlib.ProcessorFormatter,
-            'processor': structlog.dev.ConsoleRenderer(),
-        },
-        'json': {
-            '()': structlog.stdlib.ProcessorFormatter,
-            'processor': structlog.processors.JSONRenderer(),
-        },
-    },
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            'formatter': 'console' if DEBUG else 'json',
-        },
-    },
-    'root': {
-        'handlers': ['console'],
-        'level': env.LOG_LEVEL,
-    },
-}
+LOGGING = build_logging_config(env.log_level)
+configure_structlog(env.log_level)
