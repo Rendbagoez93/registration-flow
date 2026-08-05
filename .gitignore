@@ -22,3 +22,6 @@ media/
 .coverage
 htmlcov/
 coverage.xml
+
+# Database
+*.sqlite3
