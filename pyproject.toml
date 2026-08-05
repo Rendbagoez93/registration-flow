@@ -9,6 +9,7 @@ dependencies = [
     "django-extensions>=4.1",
     "django-filter>=26.1",
     "pillow>=12.3.0",
+    "psycopg[binary]>=3.2",
     "pydantic>=2.13.4",
     "pydantic-settings>=2.14.2",
     "qrcode>=8.2",
@@ -82,7 +83,7 @@ ignore = [
 "*/migrations/*.py" = ["E501", "DJ001"]  # Django migrations
 
 [tool.ruff.lint.isort]
-known-first-party = ["registration-flow"]
+known-first-party = ["config"]
 section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
 
 [tool.pytest.ini_options]
@@ -110,7 +111,7 @@ markers = [
 ]
 
 [tool.coverage.run]
-source = ["forma"]
+source = ["config", "modules", "shared"]
 omit = [
     "*/migrations/*",
     "*/tests/*",
