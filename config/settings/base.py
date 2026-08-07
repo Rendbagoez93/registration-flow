@@ -25,16 +25,24 @@ ALLOWED_HOSTS = env.ALLOWED_HOSTS
 
 CSRF_TRUSTED_ORIGINS = env.CSRF_TRUSTED_ORIGINS
 
-# Application definition
+# Application Registry
 
-INSTALLED_APPS = [
+DJANGO_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django_filters',
+]
+
+THIRD_PARTY_APPS = [
+    'django_filters',  
+]
+
+LOCAL_APPS = [
+    'apps.shared',
+    'apps.users',
 ]
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

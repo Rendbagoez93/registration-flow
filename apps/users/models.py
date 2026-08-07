@@ -1,7 +1,7 @@
 import uuid
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from shared.models import TimeStampedModel
+from apps.shared.models import TimeStampedModel
 
 
 class UserRole(models.TextChoices): 
